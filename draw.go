@@ -54,7 +54,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 		g.drawInfo(screen)
 	}
 
-	if g.inAnimation && g.step != stepLevelStart {
+	if g.inAnimation && g.step != stepLevelStart && g.step != stepLevelEnd {
 		if gAnimationSet[g.step].drawable {
 			options = ebiten.DrawImageOptions{}
 			options.GeoM.Translate(float64(gAnimationSet[g.step].drawX), float64(gAnimationSet[g.step].drawY))
@@ -153,12 +153,16 @@ func (g *game) drawResults(screen *ebiten.Image) {
 
 func (g *game) drawLevel(screen *ebiten.Image) {
 	numDrawn := 0
+	numNotDrawn := 0
 	toDraw := 0
 	for y, line := range g.currentLevel.area {
 		for x, areaType := range line {
 			if areaType != areaTypeNone {
 				toDraw++
-				if g.state != stateInLevel || g.step != stepLevelStart || toDraw <= g.animationStep {
+				if g.state != stateInLevel ||
+					(g.step != stepLevelStart && g.step != stepLevelEnd) ||
+					(g.step == stepLevelStart && numDrawn < g.animationStep) ||
+					(g.step == stepLevelEnd && numNotDrawn >= g.animationStep) {
 					numDrawn++
 					options := ebiten.DrawImageOptions{}
 
@@ -205,12 +209,15 @@ func (g *game) drawLevel(screen *ebiten.Image) {
 							)).(*ebiten.Image), &options)
 						}
 					}
+				} else {
+					numNotDrawn++
 				}
 			}
 		}
 	}
 
-	if g.step == stepLevelStart && numDrawn >= toDraw {
+	if (g.step == stepLevelStart && numDrawn >= toDraw) ||
+		(g.step == stepLevelEnd && numNotDrawn >= toDraw) {
 		g.inAnimation = false
 	}
 }

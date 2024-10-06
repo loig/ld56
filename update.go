@@ -39,9 +39,20 @@ func (g *game) Update() error {
 			g.animationFrame = 0
 			g.animationStep++
 			if !g.inAnimation {
-				g.step = stepPlayerTurn
+				if g.step == stepLevelStart {
+					g.step = stepPlayerTurn
+				} else {
+					g.setLevel(g.levelNum)
+					if g.levelNum > gNumLevels {
+						g.state = stateCongrats
+					}
+					g.step = stepLevelStart
+					g.inAnimation = true
+				}
+
 				g.animationFrame = 0
 				g.animationStep = 0
+
 			}
 		}
 		return nil
@@ -114,11 +125,7 @@ func (g *game) Update() error {
 					g.soundManager.NextSounds[assets.SoundEatID] = true
 				}
 				if g.currentLevel.isCompleted() {
-					g.setLevel(g.levelNum)
-					if g.levelNum > gNumLevels {
-						g.state = stateCongrats
-					}
-					g.step = stepLevelStart
+					g.step = stepLevelEnd
 					g.inAnimation = true
 					return nil
 				}
