@@ -30,9 +30,9 @@ const (
 	gTileXCenterShift               int = 32
 	gTileYCenterShift               int = 36
 	gTileYSelectShift               int = -5
-	gInitNumFood                    int = 500
+	gInitNumFood                    int = 650
 	gInitNumCharacters              int = 200
 	gTrueInitNumCharacters          int = 20
 	gNumDeathsForMissingFood        int = 1
-	gFoodGain                       int = 200
+	gFoodGain                       int = 150
 )

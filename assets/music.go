@@ -166,7 +166,7 @@ func (s SoundManager) playSound(sound int) {
 
 	if len(soundBytes) > 0 {
 		soundPlayer := s.audioContext.NewPlayerFromBytes(soundBytes)
-		soundPlayer.SetVolume(0.1)
+		soundPlayer.SetVolume(0.15)
 		soundPlayer.Play()
 	}
 }

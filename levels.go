@@ -18,7 +18,7 @@
 
 package main
 
-const gNumLevels int = 12
+const gNumLevels int = 15
 
 func nextLevel(n int) (l level) {
 	switch n {
@@ -47,14 +47,23 @@ func nextLevel(n int) (l level) {
 		l = dungbeetleLevel3
 		dungbeetleLevel3.alreadySeen = true
 	case 8:
+		l = level4
+		level4.alreadySeen = true
+	case 9:
 		l = level1
 		level1.alreadySeen = true
-	case 9:
+	case 10:
 		l = level2
 		level2.alreadySeen = true
-	case 10:
+	case 11:
 		l = beeLevel
 		beeLevel.alreadySeen = true
+	case 12:
+		l = level5
+		level5.alreadySeen = true
+	case 13:
+		l = level3
+		level3.alreadySeen = true
 	default:
 		l = lastLevel
 		lastLevel.alreadySeen = true
@@ -297,4 +306,65 @@ var level2 level = level{
 	},
 	iCharacters: 4, jCharacters: 1,
 	iGoal: 1, jGoal: 5,
+}
+
+var level3 level = level{
+	width:  8,
+	height: 5,
+	area: [][]int{
+		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+	},
+	badGuysSetup: []badGuy{
+		{x: 6, y: 2, kind: badGuyBee},
+		{x: 4, y: 1, kind: badGuyDungBeetle},
+	},
+	froots: map[int]map[int]*froot{
+		1: map[int]*froot{6: &froot{kind: frootTypeRaspberry}},
+		2: map[int]*froot{5: &froot{kind: frootTypeRaspberry}},
+		3: map[int]*froot{4: &froot{kind: frootTypeRaspberry}},
+		4: map[int]*froot{4: &froot{kind: frootTypeRaspberry}},
+	},
+	iCharacters: 5, jCharacters: 4,
+	iGoal: 2, jGoal: 4,
+}
+
+var level4 level = level{
+	width:  4,
+	height: 4,
+	area: [][]int{
+		{areaTypeNone, areaTypeGrass},
+		{areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeGrass, areaTypeWater, areaTypeGrass, areaTypeGrass},
+		{areaTypeGrass, areaTypeGrass},
+	},
+	badGuysSetup: []badGuy{
+		{x: 2, y: 1, kind: badGuyLadyBug},
+		{x: 3, y: 2, kind: badGuyDungBeetle},
+	},
+	iCharacters: 4, jCharacters: 1,
+	iGoal: 1, jGoal: 2,
+}
+
+var level5 level = level{
+	width:  4,
+	height: 4,
+	area: [][]int{
+		{areaTypeNone, areaTypeGrass},
+		{areaTypeGrass, areaTypeWater, areaTypeWater},
+		{areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass},
+		{areaTypeGrass, areaTypeGrass},
+	},
+	badGuysSetup: []badGuy{
+		{x: 2, y: 1, kind: badGuyBee},
+		{x: 3, y: 2, kind: badGuyDungBeetle},
+	},
+	froots: map[int]map[int]*froot{
+		2: map[int]*froot{1: &froot{kind: frootTypeRaspberry}},
+	},
+	iCharacters: 4, jCharacters: 1,
+	iGoal: 1, jGoal: 2,
 }

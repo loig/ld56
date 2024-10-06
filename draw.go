@@ -34,6 +34,10 @@ func (g *game) Draw(screen *ebiten.Image) {
 		g.drawLevel(screen)
 	}
 
+	if g.state == stateInLevel && g.currentLevel.numCharacters <= gTrueInitNumCharacters && g.levelNum == 1 {
+		screen.DrawImage(assets.HelpImage, &options)
+	}
+
 	if g.state == stateTitle {
 		screen.DrawImage(assets.TitleImage, &options)
 	}

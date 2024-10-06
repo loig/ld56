@@ -68,6 +68,10 @@ var CongratsImage *ebiten.Image
 var digitsBytes []byte
 var DigitsImage *ebiten.Image
 
+//go:embed help.png
+var helpBytes []byte
+var HelpImage *ebiten.Image
+
 func Load() {
 
 	decoded, _, err := image.Decode(bytes.NewReader(terrainBytes))
@@ -129,4 +133,10 @@ func Load() {
 		log.Fatal(err)
 	}
 	DigitsImage = ebiten.NewImageFromImage(decoded)
+
+	decoded, _, err = image.Decode(bytes.NewReader(helpBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	HelpImage = ebiten.NewImageFromImage(decoded)
 }
