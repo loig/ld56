@@ -32,6 +32,8 @@ type animation struct {
 	stepX, stepY int
 	drawable     bool
 	nextStep     int
+	stepSoundID  int
+	stepSound    bool
 }
 
 var gAnimationSet [stepNumber]animation
@@ -40,16 +42,18 @@ func setAnimations() {
 
 	gAnimationSet[stepBadGuysMoving] = animation{
 		numSteps:  1,
-		numFrames: []int{10},
+		numFrames: []int{15},
 		nextStep:  stepBadGuysMoving,
 	}
 
 	gAnimationSet[stepBadGuysAttacking] = animation{
-		numFrames: []int{10},
-		image:     assets.IconesImage,
-		subImageX: 3,
-		drawable:  true,
-		nextStep:  stepAttackEffect,
+		numFrames:   []int{10},
+		image:       assets.IconesImage,
+		subImageX:   3,
+		drawable:    true,
+		nextStep:    stepAttackEffect,
+		stepSound:   true,
+		stepSoundID: assets.SoundBallID,
 	}
 
 	gAnimationSet[stepAttackEffect] = animation{

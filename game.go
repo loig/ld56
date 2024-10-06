@@ -18,6 +18,8 @@
 
 package main
 
+import "github.com/loig/ld56/assets"
+
 type game struct {
 	state          int
 	step           int
@@ -27,10 +29,15 @@ type game struct {
 	levelNum       int
 	currentLevel   level
 	recordAttack   step
+	footSteps      int
+	soundManager   assets.SoundManager
 }
 
 const (
 	stateInLevel = iota
+	stateTitle
+	stateGameover
+	stateCongrats
 )
 
 const (
@@ -41,65 +48,41 @@ const (
 	stepAttackEffect
 	stepCheckStatus
 	stepNumber
+	stepLevelStart
+	stepLevelEnd
 )
 
-func (g *game) setFirstLevel(l level) {
+func (g *game) setFirstLevel(n int) {
 
-	g.setLevel(l)
-
-	g.levelNum = 1
+	g.setLevel(n)
 
 	g.currentLevel.numFood = gInitNumFood
 	g.currentLevel.numCharacters = gInitNumCharacters
+
+	g.currentLevel.area[2][2] = areaTypeVillage
 }
 
-func (g *game) setLevel(l level) {
+func (g *game) setLevel(n int) {
 	g.levelNum++
 
 	food := g.currentLevel.numFood
 	characters := g.currentLevel.numCharacters
 
-	g.currentLevel = l
+	g.currentLevel = nextLevel(n)
 	g.currentLevel.getPositions()
 
-	for _, froots := range l.froots {
+	for _, froots := range g.currentLevel.froots {
 		for _, froot := range froots {
 			froot.eaten = false
 		}
 	}
 
 	if len(g.currentLevel.badGuys) == 0 {
-		g.currentLevel.badGuys = make([]badGuy, len(l.badGuysSetup))
+		g.currentLevel.badGuys = make([]badGuy, len(g.currentLevel.badGuysSetup))
 	}
 
-	copy(g.currentLevel.badGuys, l.badGuysSetup)
+	copy(g.currentLevel.badGuys, g.currentLevel.badGuysSetup)
 
 	g.currentLevel.numFood = food
 	g.currentLevel.numCharacters = characters
-}
-
-var testLevel level = level{
-	width:  11,
-	height: 9,
-	area: [][]int{
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeWater, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeWater, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeWater, areaTypeGrass, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeWater, areaTypeWater, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeWater, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeNone, areaTypeWater, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeWater, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeWater, areaTypeWater, areaTypeWater, areaTypeGrass},
-		{areaTypeNone, areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeGrass, areaTypeWater, areaTypeGrass},
-		{areaTypeNone, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeWater, areaTypeWater, areaTypeGrass, areaTypeGrass},
-		{areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeGrass, areaTypeNone, areaTypeGrass, areaTypeGrass},
-	},
-	froots: map[int]map[int]*froot{
-		8: map[int]*froot{3: &froot{kind: frootTypeRaspberry}},
-	},
-	badGuysSetup: []badGuy{
-		{x: 7, y: 0, kind: badGuyBee},
-		{x: 5, y: 3, kind: badGuyLadyBug},
-		{x: 6, y: 6, kind: badGuyDungBeetle},
-	},
-	iCharacters: 9, jCharacters: 1,
-	iGoal: 1, jGoal: 7,
 }

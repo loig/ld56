@@ -31,10 +31,12 @@ func main() {
 	setAnimations()
 
 	g := game{
-		state: stateInLevel,
+		state: stateTitle,
 		step:  stepPlayerTurn,
 	}
-	g.setFirstLevel(testLevel)
+	g.setFirstLevel(0)
+
+	g.soundManager = assets.InitAudio()
 
 	ebiten.SetWindowTitle("LD56")
 	ebiten.SetWindowSize(gScreenWidth, gScreenHeight)

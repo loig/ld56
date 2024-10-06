@@ -20,6 +20,8 @@ package main
 
 import (
 	"slices"
+
+	"github.com/loig/ld56/assets"
 )
 
 type badGuy struct {
@@ -33,13 +35,14 @@ const (
 	badGuyDungBeetle
 	badGuyLadyBug
 	badGuyDungBeetleNoDung
+	badGuySuperBee
 )
 
-func (l *level) moveBadGuys() (hasMoved, inCombat, done bool) {
+func (l *level) moveBadGuys() (hasMoved, inCombat, done bool, soundID int) {
 
 	if l.currentGuy >= len(l.badGuys) {
 		l.currentGuy = 0
-		return false, false, true
+		return false, false, true, 0
 	}
 
 	if !l.badGuys[l.currentGuy].dead {
@@ -50,6 +53,13 @@ func (l *level) moveBadGuys() (hasMoved, inCombat, done bool) {
 		hasMoved = x != l.badGuys[l.currentGuy].x || y != l.badGuys[l.currentGuy].y
 
 		inCombat = l.checkCombat(l.currentGuy)
+
+		switch l.badGuys[l.currentGuy].kind {
+		case badGuyBee, badGuySuperBee:
+			soundID = assets.SoundBeeID
+		case badGuyLadyBug:
+			soundID = assets.SoundLadyBugID
+		}
 	}
 
 	l.currentGuy++
@@ -108,7 +118,10 @@ func (l *level) makeBadGuysAttack() (dist int, start, dir, attackPoint step, don
 
 func (l *level) applyAttackEffects(attackPoint step) {
 	if l.jCharacters == attackPoint.x+1 && l.iCharacters == attackPoint.y+1 {
-		l.numCharacters--
+		l.numCharacters -= 5
+		if l.numCharacters < 0 {
+			l.numCharacters = 0
+		}
 		return
 	}
 
@@ -160,11 +173,13 @@ func (l *level) checkCombat(id int) (inCombat bool) {
 		inCombat = true
 		switch l.badGuys[id].kind {
 		case badGuyBee:
-			l.numCharacters -= 3
+			l.numCharacters -= 5
 		case badGuyDungBeetle, badGuyDungBeetleNoDung:
-			l.numCharacters -= 1
+			l.numCharacters -= 5
 		case badGuyLadyBug:
-			l.numCharacters -= 1
+			l.numCharacters -= 5
+		case badGuySuperBee:
+			l.numCharacters -= 30
 		}
 		l.badGuys[id].dead = true
 		if l.numCharacters < 0 {
@@ -178,8 +193,8 @@ func (l level) getNewPosition(b badGuy) (x, y int) {
 	switch b.kind {
 	case badGuyLadyBug:
 		return l.nextStepOnPath(b.x, b.y, 1, false)
-	case badGuyBee:
-		return l.nextStepOnPath(b.x, b.y, 2, true)
+	case badGuyBee, badGuySuperBee:
+		return l.nextStepOnPath(b.x, b.y, 1, true)
 	}
 	return b.x, b.y
 }

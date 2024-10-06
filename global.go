@@ -31,6 +31,7 @@ const (
 	gTileYCenterShift               int = 36
 	gTileYSelectShift               int = -5
 	gInitNumFood                    int = 500
-	gInitNumCharacters              int = 20
+	gInitNumCharacters              int = 200
+	gTrueInitNumCharacters          int = 20
 	gNumDeathsForMissingFood        int = 1
 )

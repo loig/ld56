@@ -20,9 +20,52 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/loig/ld56/assets"
 )
 
 func (g *game) Update() error {
+
+	if g.state == stateCongrats || g.state == stateGameover || g.state == stateTitle {
+		g.soundManager.UpdateMusic(0.3)
+	} else {
+		g.soundManager.UpdateMusic(0.1)
+	}
+	g.soundManager.PlaySounds()
+
+	if g.state == stateInLevel && (g.step == stepLevelStart || g.step == stepLevelEnd) {
+		g.animationFrame++
+		if g.animationFrame >= 5 {
+			g.animationFrame = 0
+			g.animationStep++
+			if !g.inAnimation {
+				g.step = stepPlayerTurn
+				g.animationFrame = 0
+				g.animationStep = 0
+			}
+		}
+		return nil
+	}
+
+	if g.state == stateGameover || g.state == stateCongrats {
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			g.footSteps = 0
+			g.levelNum = 0
+			g.state = stateTitle
+			g.setFirstLevel(0)
+			g.soundManager.NextSounds[assets.SoundMvtID] = true
+		}
+		return nil
+	}
+
+	if g.state == stateTitle {
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			g.state = stateInLevel
+			g.step = stepPlayerTurn
+			g.soundManager.NextSounds[assets.SoundMvtID] = true
+		}
+		return nil
+	}
 
 	if g.inAnimation {
 		g.animationFrame++
@@ -36,6 +79,9 @@ func (g *game) Update() error {
 				g.step = gAnimationSet[g.step].nextStep
 			} else {
 				updateAnimationDraw(g.step)
+				if gAnimationSet[g.step].stepSound {
+					g.soundManager.NextSounds[gAnimationSet[g.step].stepSoundID] = true
+				}
 			}
 		}
 
@@ -44,27 +90,56 @@ func (g *game) Update() error {
 
 	mouseX, mouseY := ebiten.CursorPosition()
 
-	g.currentLevel.setSelected(mouseX, mouseY)
+	changed := g.currentLevel.setSelected(mouseX, mouseY)
+	if changed {
+		g.soundManager.NextSounds[assets.SoundSelectID] = true
+	}
 
 	switch g.step {
 	case stepPlayerTurn:
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		if g.levelNum == 1 && g.currentLevel.numCharacters > gTrueInitNumCharacters {
+			g.step = stepBadGuysMoving
+			return nil
+		}
+		if g.levelNum == 1 {
+			g.currentLevel.area[2][2] = areaTypeGrass
+		}
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 			hasMoved := g.currentLevel.updateCharactersPosition()
 			if hasMoved {
-				g.currentLevel.updateFood()
+				g.soundManager.NextSounds[assets.SoundMvtID] = true
+				g.footSteps++
+				hasEaten := g.currentLevel.updateFood()
+				if hasEaten {
+					g.soundManager.NextSounds[assets.SoundEatID] = true
+				}
+				if g.currentLevel.isCompleted() {
+					g.setLevel(g.levelNum)
+					if g.levelNum > gNumLevels {
+						g.state = stateCongrats
+					}
+					g.step = stepLevelStart
+					g.inAnimation = true
+					return nil
+				}
 				g.step = stepBadGuysMoving
+			} else {
+				g.soundManager.NextSounds[assets.SoundNonID] = true
 			}
 		}
 	case stepBadGuysMoving:
-		hasMoved, inCombat, done := g.currentLevel.moveBadGuys()
+		hasMoved, inCombat, done, soundType := g.currentLevel.moveBadGuys()
 		if done {
 			g.step = stepBadGuysAttacking
 		} else if hasMoved || inCombat {
 			g.inAnimation = true
 			if inCombat {
+				g.soundManager.NextSounds[assets.SoundBattleID] = true
 				g.step = stepCombat
 				gAnimationSet[stepCombat].drawX = g.currentLevel.positions[g.currentLevel.iCharacters][g.currentLevel.jCharacters].topLeftX
 				gAnimationSet[stepCombat].drawY = g.currentLevel.positions[g.currentLevel.iCharacters][g.currentLevel.jCharacters].topLeftY
+			} else {
+				g.soundManager.NextSounds[soundType] = true
 			}
 		}
 	case stepBadGuysAttacking:
@@ -82,16 +157,13 @@ func (g *game) Update() error {
 		}
 	case stepAttackEffect:
 		g.inAnimation = true
+		g.soundManager.NextSounds[assets.SoundExplodeID] = true
 		gAnimationSet[stepAttackEffect].drawX = g.currentLevel.positions[g.recordAttack.y+1][g.recordAttack.x+1].topLeftX
 		gAnimationSet[stepAttackEffect].drawY = g.currentLevel.positions[g.recordAttack.y+1][g.recordAttack.x+1].topLeftY
 		g.currentLevel.applyAttackEffects(g.recordAttack)
 	case stepCheckStatus:
 		if g.currentLevel.isLost() {
-			g.setFirstLevel(testLevel)
-		}
-
-		if g.currentLevel.isCompleted() {
-			g.setLevel(testLevel)
+			g.state = stateGameover
 		}
 		g.step = stepPlayerTurn
 	}

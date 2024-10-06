@@ -52,6 +52,22 @@ var BadguysImage *ebiten.Image
 var backBytes []byte
 var BackImage *ebiten.Image
 
+//go:embed title.png
+var titleBytes []byte
+var TitleImage *ebiten.Image
+
+//go:embed gameover.png
+var gameoverBytes []byte
+var GameoverImage *ebiten.Image
+
+//go:embed congrats.png
+var congratsBytes []byte
+var CongratsImage *ebiten.Image
+
+//go:embed digits.png
+var digitsBytes []byte
+var DigitsImage *ebiten.Image
+
 func Load() {
 
 	decoded, _, err := image.Decode(bytes.NewReader(terrainBytes))
@@ -89,4 +105,28 @@ func Load() {
 		log.Fatal(err)
 	}
 	BackImage = ebiten.NewImageFromImage(decoded)
+
+	decoded, _, err = image.Decode(bytes.NewReader(titleBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	TitleImage = ebiten.NewImageFromImage(decoded)
+
+	decoded, _, err = image.Decode(bytes.NewReader(gameoverBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	GameoverImage = ebiten.NewImageFromImage(decoded)
+
+	decoded, _, err = image.Decode(bytes.NewReader(congratsBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	CongratsImage = ebiten.NewImageFromImage(decoded)
+
+	decoded, _, err = image.Decode(bytes.NewReader(digitsBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	DigitsImage = ebiten.NewImageFromImage(decoded)
 }

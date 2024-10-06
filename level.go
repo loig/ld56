@@ -31,12 +31,15 @@ type level struct {
 	iGoal, jGoal             int
 	numFood                  int
 	numCharacters            int
+	alreadySeen              bool
 }
 
 const (
 	areaTypeNone = iota
 	areaTypeGrass
 	areaTypeWater
+	areaTypeCastle
+	areaTypeVillage
 )
 
 const (
@@ -76,7 +79,9 @@ func (l *level) getPositions() {
 	}
 }
 
-func (l *level) setSelected(mouseX, mouseY int) {
+func (l *level) setSelected(mouseX, mouseY int) (changed bool) {
+
+	oldi, oldj := l.iSelected, l.jSelected
 
 	d := distance(float64(l.positions[l.iSelected][l.jSelected].centerX), float64(l.positions[l.iSelected][l.jSelected].centerY), float64(mouseX), float64(mouseY))
 
@@ -90,6 +95,13 @@ func (l *level) setSelected(mouseX, mouseY int) {
 			}
 		}
 	}
+
+	changed = (oldi != l.iSelected || oldj != l.jSelected) &&
+		l.iSelected > 0 && l.iSelected <= len(l.area) &&
+		l.jSelected > 0 && l.jSelected <= len(l.area[l.iSelected-1]) &&
+		l.area[l.iSelected-1][l.jSelected-1] != areaTypeNone
+
+	return
 }
 
 func (l *level) updateCharactersPosition() (hasMoved bool) {
@@ -117,12 +129,13 @@ func (l *level) updateCharactersPosition() (hasMoved bool) {
 	return
 }
 
-func (l *level) updateFood() {
+func (l *level) updateFood() (hasEaten bool) {
 
 	froots, exists := l.froots[l.iCharacters-1]
 	if exists {
 		froot, isHere := froots[l.jCharacters-1]
 		if isHere && !froot.eaten {
+			hasEaten = true
 			froot.eaten = true
 			switch froot.kind {
 			case frootTypeRaspberry:
@@ -138,10 +151,20 @@ func (l *level) updateFood() {
 		l.numCharacters -= gNumDeathsForMissingFood
 	}
 
+	if l.numCharacters < 0 {
+		l.numCharacters = 0
+	}
+
+	return
+
 }
 
-func (l level) isLost() bool {
-	return l.numCharacters <= 0
+func (l *level) isLost() (lost bool) {
+	if l.numCharacters <= 0 {
+		l.numCharacters = 0
+		lost = true
+	}
+	return
 }
 
 func (l level) isCompleted() bool {
