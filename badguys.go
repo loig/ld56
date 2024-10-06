@@ -119,6 +119,7 @@ func (l *level) makeBadGuysAttack() (dist int, start, dir, attackPoint step, don
 func (l *level) applyAttackEffects(attackPoint step) {
 	if l.jCharacters == attackPoint.x+1 && l.iCharacters == attackPoint.y+1 {
 		l.numCharacters -= 5
+		addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -5)
 		if l.numCharacters < 0 {
 			l.numCharacters = 0
 		}
@@ -174,12 +175,16 @@ func (l *level) checkCombat(id int) (inCombat bool) {
 		switch l.badGuys[id].kind {
 		case badGuyBee:
 			l.numCharacters -= 5
+			addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -5)
 		case badGuyDungBeetle, badGuyDungBeetleNoDung:
 			l.numCharacters -= 5
+			addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -5)
 		case badGuyLadyBug:
 			l.numCharacters -= 5
+			addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -5)
 		case badGuySuperBee:
 			l.numCharacters -= 30
+			addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -30)
 		}
 		l.badGuys[id].dead = true
 		if l.numCharacters < 0 {

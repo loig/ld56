@@ -52,6 +52,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	if g.state == stateInLevel {
 		g.drawInfo(screen)
+		drawParticles(screen)
 	}
 
 	if g.inAnimation && g.step != stepLevelStart && g.step != stepLevelEnd {

@@ -26,6 +26,8 @@ import (
 
 func (g *game) Update() error {
 
+	updateParticles()
+
 	if g.state == stateCongrats || g.state == stateGameover || g.state == stateTitle {
 		g.soundManager.UpdateMusic(0.3)
 	} else {
@@ -123,6 +125,7 @@ func (g *game) Update() error {
 				hasEaten := g.currentLevel.updateFood()
 				if hasEaten {
 					g.soundManager.NextSounds[assets.SoundEatID] = true
+					addParticle(gTileSize+gTileSize/4, gTileSize/2+gTileSize/4, gFoodGain)
 				}
 				if g.currentLevel.isCompleted() {
 					g.step = stepLevelEnd

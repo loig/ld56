@@ -34,4 +34,5 @@ const (
 	gInitNumCharacters              int = 200
 	gTrueInitNumCharacters          int = 20
 	gNumDeathsForMissingFood        int = 1
+	gFoodGain                       int = 200
 )

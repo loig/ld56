@@ -139,16 +139,20 @@ func (l *level) updateFood() (hasEaten bool) {
 			froot.eaten = true
 			switch froot.kind {
 			case frootTypeRaspberry:
-				l.numFood += 500
+				l.numFood += gFoodGain + l.numCharacters
 			}
 		}
 	}
 
 	if l.numFood > l.numCharacters {
 		l.numFood -= l.numCharacters
+		if !hasEaten {
+			addParticle(gTileSize+gTileSize/4, gTileSize/2+gTileSize/4, -l.numCharacters)
+		}
 	} else {
 		l.numFood = 0
 		l.numCharacters -= gNumDeathsForMissingFood
+		addParticle(gScreenWidth/2-gTileSize/4, gTileSize/2+gTileSize/4, -gNumDeathsForMissingFood)
 	}
 
 	if l.numCharacters < 0 {
